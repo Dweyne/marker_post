@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- <link ref="stylesheet"ref="./index.css">  -->
+    <title>Document</title>
+    <style>
+        #app{
+            padding: 20px 40px;
+        }
+        .el-row {
+            width: 100%;
+        }
+        .right .content p{
+            word-break: break-all;
+            margin: 0!important;
+        }
+        
+        .el-form-item__label{
+            font-size: 30px;
+            color: red!important;
+        }
+        body, html{
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="body" v-loading="bodyLoading">
+            <el-row>
+                <el-col :span="24" class="left">
+                    <el-row>
+                        <el-col :span="4">
+                            <div style="display: flex;justify-content:space-between">
+                                <!-- <el-select v-model="type" @change="getData">
+                                    <el-option
+                                        v-for="(item, index) in options"
+                                        :key="index"
+                                        :label="item.label"
+                                        :value="item.value"></el-option>
+                                </el-select> -->
+                                <!-- <div v-if="form.question">
+                                    <el-button @click="last">上一题</el-button>
+                                    <el-button type="primary" @click="submit">提交</el-button>
+                                </div> -->
+                                <el-input v-model="type"></el-input>
+                                <el-button @click="search">搜索</el-button>
+                            </div>
+                        </el-col>
+                    </el-row>
+                    <el-form ref="form" :model="form" label-with="200px" label-position="top">
+                        <el-row :gutter="60">
+                            <el-col :span="12">
+                                <el-form-item label="题目id" props="id">
+                                    <el-input v-model="form.id" readonly></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="题目id">
+                                    <div>{{ form.id }}</div>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="60">
+                            <el-col :span="12">
+                                <el-form-item label="题干" props="content">
+                                    <el-input autosize type="textarea" v-model="form.content">
+                                    </el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="题干">
+                                    <div class="content" v-html="form.content"></div>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="60">
+                            <el-col :span="12">
+                                <el-form-item label="题型" props="question_type">
+                                    <el-select v-model="form.question_type">
+                                        <el-option
+                                            v-for="(item, index) in options"
+                                            :key="index"
+                                            :label="item.label"
+                                            :value="item.value"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <!-- 问题 -->
+                        <div v-for="(item, index) in form.question" :key="index">
+                            <el-row :gutter="60">
+                                <el-col :span="12">
+                                    <el-form-item
+                                    :label="'问题'+(index+1)"
+                                    :prop="`question[${index}].question`">
+                                        <el-input autosize type="textarea" v-model="item.question"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item :label="'问题'+(index+1)">
+                                        <div v-html="item.question"></div>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row :gutter="60">
+                                <el-col :span="12">
+                                    <el-row :gutter="50">
+                                        <el-col :span="12">
+                                            <el-form-item
+                                                :label="'分数'+(index+1)"
+                                                :prop="`question[${index}].total_score`"
+                                                :rules="[{required: true, message: '请完善信息'}]">
+                                                <el-input v-model="item.total_score"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12">
+                                            <el-form-item
+                                                :label="'是否能做'+(index+1)"
+                                                :prop="`question[${index}].cando`">
+                                                <el-switch
+                                                v-model="item.cando"
+                                                    active-color="#13ce66">
+                                                </el-switch>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item
+                                        :label="'分数'+(index+1)">
+                                        <div v-html="item.total_score"></div>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row :gutter="60">
+                                <el-col :span="12">
+                                    <el-form-item
+                                        :label="'答案'+(index+1)"
+                                        :prop="`question[${index}].answer`"
+                                        :rules="[{required: true, message: '请完善信息'}]">
+                                        <el-input autosize type="textarea" v-model="item.answer"></el-input>
+                                    </el-form-item>
+                                    
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item
+                                        :label="'答案'+(index+1)">
+                                        <div v-html="item.answer"></div>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row :gutter="60">
+                                <el-col :span="12">
+                                    <el-form-item
+                                    :label="'解析'+(index+1)"
+                                        :prop="`question[${index}].comment`"
+                                        :rules="[{required: true, message: '请完善信息'}]">
+                                        <el-input autosize type="textarea" v-model="item.comment"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item
+                                        :label="'解析'+(index+1)">
+                                        <div v-html="item.comment"></div>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </el-form>
+                    <el-button @click="addQuestion" v-if="form.question">添加问题</el-button>
+                    <el-button @click="delQuestion" v-if="form.question && form.question.length > questionLen">删除添加的问题</el-button>
+                </el-col>
+            </el-row>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="./config.js"></script>
+    <script>
+        options = [
+            {
+                value: "1",
+                label: "单选题",
+            },{
+                value: "2",
+                label: "多选题",
+            },{
+                value: "3",
+                label: "不定项",
+            },{
+                value: "4",
+                label: "完形填空",
+            },{
+                value: "5",
+                label: "判断题",
+            },{
+                value: "6",
+                label: "阅读理解7选5",
+            },{
+                value: "11",
+                label: "证明题",
+            },{
+                value: "12",
+                label: "论述题",
+            },{
+                value: "13",
+                label: "计算题",
+            },{
+                value: "14",
+                label: "阅读理解",
+            },{
+                value: "15",
+                label: "分析题",
+            },{
+                value: "16",
+                label: "改错",
+            },{
+                value: "50",
+                label: "其他",
+            },{
+                value: "61",
+                label: "填空题",
+            },{
+                value: "64",
+                label: "语法填空"
+            }
+        ]
+        var app = new Vue({
+            el: '#app',
+            data: {
+                type: '',
+                options: options,
+                questionLen: 0,
+                form: {
+                    id: '',
+                    content: '',
+                    question_type: '',
+                    question:[
+                        {
+                            id: '',
+                            question: '',
+                            answer: '',
+                            comment: '',
+                            commet_id: '',
+                            total_score: '',
+                            cando: true
+                        }
+                    ]
+                },
+                bodyLoading: false,
+                questionList: []
+            },
+            mounted() {
+                // this.getData()
+            },
+            methods: {
+                /**
+                 * 搜索
+                */
+                search() {
+                    if (this.type) {
+                        this.getData()
+                    }
+                },
+                
+                /**
+                    获取数据
+                */
+                async getData(){
+                    this.bodyLoading = true
+                    let res = await axios({
+                        method: 'get',
+                        url: `${base_url}/getExercise`,
+                        params: {
+                            type: this.type
+                        }
+                    })
+                    this.bodyLoading = false
+                    if (res.data.code == 0) {
+                        this.form = res.data.data
+                        if (this.form.question){
+                            this.questionLen = this.form.question.length
+                        }
+                        this.questionList.push(this.form)
+                        if (this.questionList.length > 3){
+                            this.questionList.shift()
+                        }
+                    }
+                },
+                /**
+                    上一题
+                */
+                last(){
+                    let index = this.questionList.length - 2
+                    console.log(index)
+                    if (index >= 0) {
+                        this.form = this.questionList[index]
+                    } else {
+                        console.log('sss')
+                        this.$message.error('不能再向前了！！');
+                    }
+                },
+                /**
+                    确定
+                */
+                submit(){
+                    this.$refs.form.validate(async valid => {
+                        if (valid) {
+                            this.bodyLoading = true
+                            let res = await axios({
+                                method: 'post',
+                                url: `${base_url}/updateExercise`,
+                                data: {exercise: this.form}
+                            })
+                            this.bodyLoading = false
+                            if (res.data.code === 0) {
+                                this.$notify.success('检查成功')
+                                this.getData()
+                            } else {
+                                this.$notify.error(res.data.errMessage)
+                            }
+                        }
+                    })
+                },
+
+                /**
+                    添加问题
+                */
+                addQuestion(){
+                    this.form.question.push({
+                        id: this.form.id + this.random(),
+                        question: '',
+                        type: this.form.question_type,
+                        answer: '',
+                        comment: '',
+                        cando: true,
+                        comment_id: this.form.id + this.random(),
+                        total_score: ''
+                    })
+                },
+
+                /**
+                    删除添加的问题
+                */
+                delQuestion(){
+                    if (this.form.question.length > this.questionLen) {
+                        this.form.question.pop()
+                    }
+                },
+
+                /**
+                    随机数100-1000
+                */
+                random(){
+                    random = Math.floor(Math.random()*900 + 100)
+                    return random
+                }
+            },
+        })
+
+    </script>
+</body>
+</html>
